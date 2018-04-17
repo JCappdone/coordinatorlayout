@@ -8,6 +8,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 
 public class ScrollingActivity extends AppCompatActivity {
@@ -34,7 +35,19 @@ public class ScrollingActivity extends AppCompatActivity {
         AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
         mAppCompatImageView = (AppCompatImageView) findViewById(R.id.img11);
 
-        appBarLayout.addOnOffsetChangedListener(mOnOffsetChangedListener1);
+        appBarLayout.addOnOffsetChangedListener(mOnOffsetChangedListener);
+
+
+/*
+        appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
+            @Override
+            public void onStateChanged(AppBarLayout appBarLayout, State state) {
+                Log.d("STATE", state.name());
+
+            }
+        });
+*/
+
     }
 
     private static final int PERCENTAGE_TO_ANIMATE_AVATAR = 30;
@@ -42,6 +55,23 @@ public class ScrollingActivity extends AppCompatActivity {
     private int mMaxScrollSize;
 
     AppBarLayout.OnOffsetChangedListener mOnOffsetChangedListener = new AppBarLayout.OnOffsetChangedListener() {
+        @Override
+        public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+            float percentage = 1 - ((float)Math.abs(verticalOffset)/appBarLayout.getTotalScrollRange());
+            Log.d("TAG", "==== onOffsetChanged: "+percentage);
+            //mAppCompatImageView.setAlpha(percentage);
+            if(percentage >= 0.4){
+                mAppCompatImageView.setScaleX(percentage);
+                mAppCompatImageView.setScaleY(percentage);
+                mAppCompatImageView.setAlpha((float) (percentage+(0.9)));
+            }
+
+
+            //mAppCompatImageView.setScaleY(percentage/100);
+        }
+    };
+
+    AppBarLayout.OnOffsetChangedListener mOnOffsetChangedListener0 = new AppBarLayout.OnOffsetChangedListener() {
         @Override
         public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
             if (mMaxScrollSize == 0)
@@ -53,9 +83,10 @@ public class ScrollingActivity extends AppCompatActivity {
                 mIsAvatarShown = false;
 
                 mAppCompatImageView.animate()
-                        .scaleY(0).scaleX(0)
+                        .scaleY(percentage).scaleX(0)
                         .setDuration(300)
                         .start();
+
             }
 
             if (percentage <= PERCENTAGE_TO_ANIMATE_AVATAR && !mIsAvatarShown) {
@@ -63,13 +94,12 @@ public class ScrollingActivity extends AppCompatActivity {
 
                 mAppCompatImageView.animate()
                         .scaleY(1).scaleX(1)
-                        // .setDuration(300)
+                        //.setDuration(300)
                         .start();
+
             }
         }
     };
-
-
 
 
 
@@ -85,4 +115,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
         }
     };
+
+
+
 }
